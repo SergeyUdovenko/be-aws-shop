@@ -29,6 +29,7 @@ const productsList = {products: [{
   price: 23,
   title: "Product2",
 },]}
+
 module.exports.getProducts = async (event) => {
   return {
     statusCode: 200,
@@ -38,4 +39,43 @@ module.exports.getProducts = async (event) => {
       2
     ),
   };
+};
+
+module.exports.productsById = async (event) => {
+  const product = productsList.products.find(({ id }) => id === event.pathParameters?.productId);
+  console.log(event)
+  if(!event.pathParameters?.productId) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify(
+        {
+          message: `product id required`
+        },
+        null,
+        2
+      ),
+    }
+  }
+  return product ? {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        ...product
+      },
+      null,
+      2
+    ),
+  } : {
+    statusCode: 200,
+    body: JSON.stringify(
+      {
+        message: `product with id ${event.pathParameters.productId} not found`
+      },
+      null,
+      2
+    ),
+  };
+
+  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
+  // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
 };
