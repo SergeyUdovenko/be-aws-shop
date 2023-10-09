@@ -43,7 +43,6 @@ module.exports.getProducts = async (event) => {
 
 module.exports.productsById = async (event) => {
   const product = productsList.products.find(({ id }) => id === event.pathParameters?.productId);
-  console.log(event)
   if(!event.pathParameters?.productId) {
     return {
       statusCode: 400,
