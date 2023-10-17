@@ -19,6 +19,9 @@ org: serhii1udovenko
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 frameworkVersion: "3"
+custom:
+  products: products
+  stocks: stocks
 
 provider:
   name: aws
@@ -59,6 +62,9 @@ provider:
 functions:
   getProducts:
     handler: handler.getProducts
+    environment:
+      products: ${self:custom.products}
+      stocks: ${self:custom.stocks}
     events:
       - httpApi:
           path: /products
@@ -66,10 +72,22 @@ functions:
 
   productsById:
     handler: handler.productsById
+    environment:
+      products: ${self:custom.products}
+      stocks: ${self:custom.stocks}
     events:
       - httpApi:
           path: /products/{productId}
           method: get
+  createProduct:
+    handler: handler.createProduct
+    environment:
+      products: ${self:custom.products}
+      stocks: ${self:custom.stocks}
+    events:
+      - httpApi:
+          path: /products
+          method: post
 # you can add CloudFormation resource templates here
 #resources:
 #  Resources:
