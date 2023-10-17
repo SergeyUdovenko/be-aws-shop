@@ -116,7 +116,7 @@ module.exports.createProduct = async (event) => {
   validateBody(requestBody);
   const id = randomUUID();
 
-  const { title, cost, description, stock } = requestBody;
+  const { title, price, description, stock } = requestBody;
   const putStockParams = {
     TableName: process.env.stocks,
     Item: marshall({
@@ -131,7 +131,7 @@ module.exports.createProduct = async (event) => {
     Item: marshall({
       id,
       title,
-      cost: Number(cost) || 0,
+      price: Number(price) || 0,
       description: description || ""
     }),
   };
