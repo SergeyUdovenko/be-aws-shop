@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import * as csvParser from "csv-parser";
 import { region, Bucket } from '../constants/constants';
 
@@ -17,24 +17,30 @@ async function importFileParser(event) {
     };
 
     const copyObjectParams = {
-      Bucket: process.env.BUCKET_NAME,
-      CopySource: `${process.env.BUCKET_NAME}/${sourceKey}`,
+      Bucket: Bucket,
+      CopySource: `${Bucket}/${sourceKey}`,
       Key: destinationKey,
     };
 
     try {
       const s3Stream = getObject(s3, getObjectParams);
+			const results = [];
 
       s3Stream
         .pipe(csvParser())
         .on('data', (row) => {
           console.log('Parsed data:', row);
+					results.push(row)
         })
         .on('end', async () => {
           // Copy the object to the 'parsed' folder
           await s3.send(new CopyObjectCommand(copyObjectParams));
           // Delete the original object from the 'uploaded' folder
           await s3.send(new DeleteObjectCommand(getObjectParams));
+					for (const result of results) {
+						const sqsParams = { QueueUrl: process.env.SQS_URL, MessageBody: JSON.stringify(result) };
+						await sqsClient.send(new SendMessageCommand(sqsParams));
+					}
         });
     } catch (error) {
       console.error('Error processing S3 object:', error);
