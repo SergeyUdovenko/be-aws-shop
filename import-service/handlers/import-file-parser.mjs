@@ -1,10 +1,10 @@
-import { S3Event, S3Handler } from 'aws-lambda';
-import { S3Client, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getObject } from 'streaming-s3';
-import * as csvParser from 'csv-parser';
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import * as csvParser from "csv-parser";
+import { region, Bucket } from '../constants/constants';
 
-export const handler: S3Handler = async (event: S3Event) => {
-  const s3 = new S3Client({ region: 'us-east-1' }); // Replace with your region
+
+async function importFileParser(event) {
+  const s3 = new S3Client({ region: region }); 
 
   for (const record of event.Records) {
     const s3Object = record.s3.object;
@@ -12,7 +12,7 @@ export const handler: S3Handler = async (event: S3Event) => {
     const destinationKey = sourceKey.replace('uploaded/', 'parsed/');
 
     const getObjectParams = {
-      Bucket: process.env.BUCKET_NAME,
+      Bucket: Bucket,
       Key: sourceKey,
     };
 
@@ -40,4 +40,6 @@ export const handler: S3Handler = async (event: S3Event) => {
       console.error('Error processing S3 object:', error);
     }
   }
-};
+}
+
+export { importFileParser };
