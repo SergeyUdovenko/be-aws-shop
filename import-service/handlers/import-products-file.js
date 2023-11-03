@@ -1,12 +1,12 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { region, Bucket } from '../constants/constants';
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } =  require("@aws-sdk/s3-request-presigner");
+const { region, Bucket } =  require("../constants/constants.js");
 
 const s3Client = new S3Client({
   region,
 });
 
-async function importProductsFile(event) {
+module.exports.importProductsFile = async (event) => {
   let statusCode = 200;
   let body;
   const fileName = event.queryStringParameters.name;
@@ -30,5 +30,3 @@ async function importProductsFile(event) {
     body,
   };
 }
-
-export {importProductsFile};

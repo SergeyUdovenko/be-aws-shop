@@ -1,11 +1,11 @@
-import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
-import { region } from '../constants/constants';
+const { SNSClient, PublishCommand } = require("@aws-sdk/client-sns");
+const { region } = require('../constants/constants.js') ;
 const { DynamoDBClient,  PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const { randomUUID  } = require("crypto");
 
 const client = new DynamoDBClient({ region: region });
-async function catalogBatchProcess(event) {
+module.exports.catalogBatchProcess = async (event) => {
 	
   const snsClient = new SNSClient({ region });
   const newRecords = event.Records.map(record => JSON.parse(record.body));
@@ -41,5 +41,3 @@ async function catalogBatchProcess(event) {
   const snsParams = { Message: 'Products successfully created!', TopicArn: process.env.SNS_ARN };
   await snsClient.send(new PublishCommand(snsParams));
 }
-
-export { catalogBatchProcess };

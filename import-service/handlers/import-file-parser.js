@@ -1,9 +1,9 @@
-import { S3Client } from "@aws-sdk/client-s3";
-import * as csvParser from "csv-parser";
-import { region, Bucket } from '../constants/constants';
+const { S3Client } = require("@aws-sdk/client-s3");
+const csvParser = require("csv-parser");
+const { region, Bucket } = require('../constants/constants.js');
 
 
-async function importFileParser(event) {
+module.exports.importFileParser = async (event) => {
   const s3 = new S3Client({ region: region }); 
 
   for (const record of event.Records) {
@@ -47,5 +47,3 @@ async function importFileParser(event) {
     }
   }
 }
-
-export { importFileParser };
