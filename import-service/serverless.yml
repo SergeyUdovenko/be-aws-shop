@@ -1,0 +1,45 @@
+org: serhii1udovenko
+app: products-list
+service: import-service
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+            - "s3:PutObject"
+          Resource: "arn:aws:s3:::import-service-be/*"
+
+functions:
+  importProductsFile:
+    handler: handler.importProductsFile
+    events:
+      - http:
+          method: get
+          path: import
+          request:
+            parameters:
+              querystrings:
+                name: true
+
+  importFileParser:
+    handler: handler.importFileParser
+
+    events:
+      - s3:
+          bucket: import-service-be
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: uploaded/
+
+plugins:
+  - serverless-offline
