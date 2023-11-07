@@ -3,11 +3,20 @@ app: products-list
 service: import-service
 frameworkVersion: "3"
 
+custom:
+  products: products
+  stocks: stocks
+
 provider:
   name: aws
   runtime: nodejs18.x
   region: eu-central-1
   stage: dev
+  environment:
+    SQS_URL:
+      Ref: catalogItemsQueue
+    SNS_ARN:
+      Ref: createProductTopic
 
   iam:
     role:
@@ -17,6 +26,16 @@ provider:
             - "s3:GetObject"
             - "s3:PutObject"
           Resource: "arn:aws:s3:::import-service-be/*"
+        - Effect: "Allow"
+          Action:
+            - "sqs:SendMessage"
+          Resource:
+            Fn::GetAtt: [catalogItemsQueue, Arn]
+        - Effect: "Allow"
+          Action:
+            - "sns:Publish"
+          Resource:
+            Ref: createProductTopic
 
 functions:
   importProductsFile:
@@ -40,6 +59,35 @@ functions:
           existing: true
           rules:
             - prefix: uploaded/
+  catalogBatchProcess:
+    handler: handler.catalogBatchProcess
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - catalogItemsQueue
+              - Arn
+    environment:
+      products: ${self:custom.products}
+      stocks: ${self:custom.stocks}
+resources:
+  Resources:
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: catalogItemsQueue
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: createProductTopic
+    emailSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        Endpoint: taossist@gmail.com
+        TopicArn:
+          Ref: createProductTopic
 
 plugins:
   - serverless-offline
