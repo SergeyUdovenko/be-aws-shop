@@ -3,6 +3,8 @@ app: products-list
 service: import-service
 frameworkVersion: "3"
 
+useDotenv: true
+
 custom:
   products: products
   stocks: stocks
@@ -13,10 +15,17 @@ provider:
   region: eu-central-1
   stage: dev
   environment:
+    BASIC_AUTHORIZER_ARN: ${env:BASIC_AUTHORIZER_ARN}
     SQS_URL:
       Ref: catalogItemsQueue
     SNS_ARN:
       Ref: createProductTopic
+  httpApi:
+    cors: true
+    authorizers:
+      basicAuthorizer:
+        type: request
+        functionArn: ${env:BASIC_AUTHORIZER_ARN}
 
   iam:
     role:
@@ -44,6 +53,9 @@ functions:
       - http:
           method: get
           path: import
+          cors: true
+          authorizer:
+            name: basicAuthorizer
           request:
             parameters:
               querystrings:

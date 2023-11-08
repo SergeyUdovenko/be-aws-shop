@@ -1,0 +1,35 @@
+org: serhii1udovenko
+app: products-list
+service: authorization-service
+
+frameworkVersion: "3"
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+  httpApi:
+    cors: true
+    authorizers:
+      tokenAuthorizer:
+        type: request
+        functionName: basicAuthorizer
+  environment:
+    REGION: ${self:provider.region}
+    GITHUB_USERNAME: ${env:USERNAME}
+    TEST_PASSWORD: ${env:TEST_PASSWORD}
+
+functions:
+  basicAuthorizer:
+    handler: basicAuthorizer/basicAuthorizer.handler
+    events:
+      - httpApi:
+          path: /token
+          method: GET
+          authorizer:
+            name: tokenAuthorizer
+    environment:
+      USER_CREDENTIAL: ${env:USERNAME}:${env:TEST_PASSWORD}
