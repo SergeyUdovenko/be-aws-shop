@@ -1,19 +1,18 @@
-const { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-const { SQSClient, SendMessageCommand } = require('@aws-sdk/client-sqs');
+import AWS from "aws-sdk";
+import { S3Client, GetObjectCommand, CopyObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import csvParser from "csv-parser";
+import { Bucket, region } from '../constants/constants.js';
+import { config } from 'dotenv';
 
-const csvParser = require("csv-parser");
-const { region, Bucket } = require('../constants/constants.js');
+const s3 = new S3Client({ region: region });
+const sqsClient = new AWS.SQS();
 
-const s3 = new S3Client({ region });
-const sqsClient = new SQSClient({ region });
-
-module.exports.importFileParser = async (event) => {
-
+config();
+export const importFileParser = async (event) => {
+  console.log("event", event)
   for (const record of event.Records) {
-    const s3Object = record.s3.object;
-    const sourceKey = s3Object.key;
+    const sourceKey = record.s3.object.key;
     const destinationKey = sourceKey.replace('uploaded/', 'parsed/');
-
     const getObjectParams = {
       Bucket: Bucket,
       Key: sourceKey,
@@ -26,7 +25,8 @@ module.exports.importFileParser = async (event) => {
     };
 
     try {
-      const s3Stream = s3.send(new GetObjectCommand(getObjectParams));
+      const { Body } = await s3.send(new GetObjectCommand(getObjectParams));
+      const s3Stream = Body;
       const results = [];
       s3Stream
         .pipe(csvParser())
@@ -36,14 +36,20 @@ module.exports.importFileParser = async (event) => {
         })
         .on('end', async () => {
           // Copy the object to the 'parsed' folder
-
+          console.log("results====", results)
           await s3.send(new CopyObjectCommand(copyObjectParams));
-          // Delete the original object from the 'uploaded' folder
-          await s3.send(new DeleteObjectCommand(getObjectParams));
           for (const result of results) {
-            const sqsParams = { QueueUrl: process.env.SQS_URL, MessageBody: JSON.stringify(result) };
-            await sqsClient.send(new SendMessageCommand(sqsParams));
+            await sqsClient
+              .sendMessage({
+                QueueUrl: process.env.SQS_URL,
+                MessageBody: JSON.stringify(result),
+              })
+              .promise();
           }
+          await s3.send(new DeleteObjectCommand(getObjectParams));
+        })
+        .on('error', error => {
+          reject(error);
         });
     } catch (error) {
       console.error('Error processing S3 object:', error);

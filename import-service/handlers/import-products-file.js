@@ -1,32 +1,36 @@
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const { getSignedUrl } =  require("@aws-sdk/s3-request-presigner");
-const { region, Bucket } =  require("../constants/constants.js");
+import AWS from "aws-sdk";
+import { Bucket } from "../constants/constants.js";
 
-const s3Client = new S3Client({
-  region,
-});
+const s3 = new AWS.S3({ signatureVersion: 'v4' });
 
-module.exports.importProductsFile = async (event) => {
+export const importProductsFile = async (event) => {
   let statusCode = 200;
   let body;
   const fileName = event.queryStringParameters.name;
-  
+
   try {
-    const command = new PutObjectCommand({
+    const command = {
       Bucket,
       Key: `uploaded/${fileName}`,
-      
-    });
-    body = await getSignedUrl(s3Client, command, {
-      expiresIn: 60,
-    }); 
+      Expires: 60,
+      ContentType: 'text/csv',
+
+    };
+    body = await s3.getSignedUrlPromise('putObject', params);;
   } catch (err) {
-      console.log(err); 
-      statusCode = 500;
-      body = "Error getting SignedUrl";
+    console.log(err);
+    statusCode = 500;
+    body = "Error getting SignedUrl";
   }
   return {
     statusCode,
+    headers: {
+      'content-type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+      'Access-Control-Allow-Methods': 'OPTIONS, GET, PUT',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
     body,
   };
 }

@@ -1,5 +1,3 @@
-const  importProductsFile  = require('./handlers/import-products-file.js');
-const  catalogBatchProcess = require('./handlers/catalog-batch-process.js');
-const  importFileParser = require('./handlers/import-file-parser.js');
-
-module.exports = {importProductsFile, importFileParser, catalogBatchProcess}
+export { importProductsFile } from './handlers/import-products-file.js';
+export { importFileParser } from './handlers/import-file-parser.js';
+export { catalogBatchProcess } from './handlers/catalog-batch-process.js';

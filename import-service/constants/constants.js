@@ -1,4 +1,2 @@
-module.exports = { 
-	region: "eu-central-1",
-	Bucket: "import-service-be"
-}
+export const	region = "eu-central-1";
+export const Bucket = "import-service-be";

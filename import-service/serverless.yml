@@ -37,12 +37,12 @@ provider:
           Resource: "arn:aws:s3:::import-service-be/*"
         - Effect: "Allow"
           Action:
-            - "sqs:SendMessage"
+            - "sqs:*"
           Resource:
             Fn::GetAtt: [catalogItemsQueue, Arn]
         - Effect: "Allow"
           Action:
-            - "sns:Publish"
+            - "sns:*"
           Resource:
             Ref: createProductTopic
 
@@ -54,8 +54,6 @@ functions:
           method: get
           path: import
           cors: true
-          authorizer:
-            name: basicAuthorizer
           request:
             parameters:
               querystrings:
