@@ -30,7 +30,7 @@ const getItemFromStock = async (product_id) => {
   return unmarshall(response.Item)
 }
 
-module.exports.getProducts = async (event) => {
+module.exports.getProducts = async (_event) => {
   try {
     const productsFormProductsTable = await getItems(process.env.products);
 

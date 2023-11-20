@@ -1,2 +1,3 @@
-export { importProductsFile } from './handlers/import-products-file';
-export { importFileParser } from './handlers/import-products-file';
+export { importProductsFile } from './handlers/import-products-file.js';
+export { importFileParser } from './handlers/import-file-parser.js';
+export { catalogBatchProcess } from './handlers/catalog-batch-process.js';

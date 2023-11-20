@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "build": "sls package",
+    "deploy": "sls deploy",
+    "serverless:remove": "sls remove",
+    "test": "jest"
+  },
+  "keywords": [],
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "serverless": "^3.20.0",
+    "serverless-dotenv-plugin": "^6.0.0"
+  },
+  "name": "authorization-service",
+  "version": "1.0.0",
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

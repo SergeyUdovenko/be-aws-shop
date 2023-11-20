@@ -3,18 +3,34 @@
   "version": "1.0.0",
   "description": "\"Serverless service for managing products\",",
   "main": "handler.js",
+  "type": "module",
   "scripts": {
+    "build": "sls package",
+    "deploy": "sls deploy",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.63.0",
-    "@aws-sdk/client-sqs": "^3.63.0",
-    "@aws-sdk/client-sns": "^3.63.0",
-    "@aws-sdk/s3-request-presigner": "^3.63.0",
-    "csv-parser": "^3.0.0"
+    "@aws-sdk/util-dynamodb": "^3.445.0",
+    "aws-sdk": "^2.1492.0",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "serverless-offline": "^8.4.0"
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-offline": "^8.4.0",
+    "serverless": "^3.20.0",
+    "@babel/plugin-transform-runtime": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^16.7.5",
+    "babel": "^6.23.0",
+    "babel-jest": "^27.1.0",
+    "babel-loader": "^8.2.2",
+    "babel-runtime": "^6.26.0"
   },
   "author": "serhii udovenko",
   "license": "ISC"
